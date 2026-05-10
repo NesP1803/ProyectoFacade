@@ -1,46 +1,25 @@
-# Full-Stack Facade Pattern Demo (Flask + React + TypeScript)
+# ProyectoFacade
 
-This repository demonstrates the **Facade design pattern** using an academic e-commerce scenario.
+Proyecto demostrativo (backend + frontend) con una base de integración Factus API V2 en `backend/services/factus`.
 
-## Structure
+## Factus V2 migration layer
 
-- `backend/services/` → subsystem services (`ProductService`, `PaymentService`, `NotificationService`)
-- `backend/facade/` → facade class (`OrderFacade`)
-- `backend/controllers/` → API controller (`POST /process`)
-- `frontend/api/` → API facade (`ApiFacade`)
-- `frontend/hooks/` → hook/service layer (`useOrderProcessor`)
-- `frontend/components/` → UI component (`OrderDemo`)
+Se implementó una capa de migración para Factus V2 con compatibilidad de rollback:
 
-## Run backend
+- Configuración versionada (`config.py`):
+  - `FACTUS_API_VERSION` (default `v2`, fallback `v1`)
+  - `FACTUS_SUPPORT_DOCUMENT_API_VERSION` (default `v1`)
+  - `FACTUS_SUPPORT_ADJUSTMENT_API_VERSION` (default `v1`)
+- Registro de endpoints (`endpoints.py`) por nombre lógico.
+- Cliente HTTP (`client.py`) con manejo de errores y reintento controlado para `429`.
+- Builder de payload Factura V2 (`payload_builder_v2.py`) para `payment_details[]` y precio neto.
+- Builder de payload Nota Crédito V2 (`credit_note_payload_builder_v2.py`).
+- Mapper de respuestas/estado (`response_mapper_v2.py`) para `estado_electronico` interno.
+- Adaptador de descargas (`download_adapter.py`) para `pdf_base_64_encoded` y `xml_base_64_encoded`.
+
+## Tests
 
 ```bash
 cd backend
-pip install -r requirements.txt
-python app.py
-```
-
-## Run frontend
-
-```bash
-cd frontend
-npm install
-npm run dev
-```
-
-## UML (text-based)
-
-```text
-Client (OrderDemo component)
-    |
-    v
-Frontend ApiFacade (apiFacade.ts)
-    |
-    v
-Backend Controller (/process)
-    |
-    v
-OrderFacade (process_order)
-    |--------> ProductService
-    |--------> PaymentService
-    \--------> NotificationService
+python -m unittest discover -s tests -v
 ```
